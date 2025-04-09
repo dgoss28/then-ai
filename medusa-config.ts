@@ -5,6 +5,32 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 const PORT = process.env.PORT || "9000"
 const HOST = process.env.HOST || '0.0.0.0'
 
+const prodModules = [
+  {
+    resolve: "@medusajs/medusa/cache-redis",
+    options: {
+      redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
+    },
+  },
+  {
+    resolve: "@medusajs/medusa/event-bus-redis",
+    options: {
+      redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
+    },
+  },
+  {
+    resolve: `@nicogorga/medusa-product-attributes`,
+  },
+  {
+    resolve: "@medusajs/medusa/workflow-engine-redis",
+    options: {
+      redis: {
+        url: process.env.REDIS_URL ?? "redis://localhost:6379",
+      },
+    },
+  },
+]
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -22,27 +48,6 @@ module.exports = defineConfig({
     disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
     backendUrl: process.env.MEDUSA_BACKEND_URL || `http://${HOST}:${PORT}`,
   },
-  modules: [
-    {
-      resolve: "@medusajs/medusa/cache-redis",
-      options: {
-        redisUrl: process.env.REDIS_URL,
-      },
-    },
-    {
-      resolve: "@medusajs/medusa/event-bus-redis",
-      options: {
-        redisUrl: process.env.REDIS_URL,
-      },
-    },
-    {
-      resolve: "@medusajs/medusa/workflow-engine-redis",
-      options: {
-        redis: {
-          url: process.env.REDIS_URL,
-        },
-      },
-    },
-  ],
+  modules: process.env.NODE_ENV === 'development' ? undefined : prodModules,
+});
 
-})
